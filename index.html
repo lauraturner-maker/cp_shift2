@@ -150,14 +150,15 @@
 
                 <h1 class="text-5xl font-header font-bold mb-6">Prep</h1>
 
-                <div class="flex gap-3 mb-8">
-                    <div class="bg-black/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
-                        <p class="text-xs uppercase opacity-70">Date</p>
-                        <p class="font-bold">Tomorrow</p>
+                <!-- Adjusted Date and Time Boxes for Mobile Friendliness -->
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <div class="bg-black/20 backdrop-blur-sm rounded-lg px-3 py-3 border border-white/10 text-center flex flex-col justify-center">
+                        <p class="text-[10px] uppercase opacity-70 tracking-wider mb-1">Date</p>
+                        <p class="font-bold text-lg leading-none">Tomorrow</p>
                     </div>
-                    <div class="bg-black/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10 flex-grow">
-                        <p class="text-xs uppercase opacity-70">Time</p>
-                        <p class="font-bold"><i class="far fa-clock mr-1"></i> 10:00 AM - 6:00 PM</p>
+                    <div class="bg-black/20 backdrop-blur-sm rounded-lg px-3 py-3 border border-white/10 text-center flex flex-col justify-center">
+                        <p class="text-[10px] uppercase opacity-70 tracking-wider mb-1">Time</p>
+                        <p class="font-bold text-sm leading-tight">10:00 AM - 6:00 PM</p>
                     </div>
                 </div>
 
@@ -412,8 +413,8 @@
 
             try {
                 console.log("Sending Notification API Request via Modal...");
-                // Note: Fetch call commented out for demo preview
-                /*
+                
+                // UNCOMMENTED API CALL
                 await fetch('https://app.staffbase.com/api/branch/notifications', {
                     method: 'POST',
                     headers: {
@@ -422,8 +423,8 @@
                     },
                     body: JSON.stringify(payload)
                 });
-                */
-                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // await new Promise(resolve => setTimeout(resolve, 800)); // Removed artificial delay in favor of real fetch
 
                 closeSwapConfirm();
                 showToast("Your shift change request has been sent to your manager. An update will be provided soon.");
@@ -465,17 +466,10 @@
             };
 
             try {
-                // IMPORTANT: This fetch will likely fail in this preview environment due to CORS/Auth.
-                // I am including it as requested, but catching the error to show the success UI 
-                // so the reviewer can see the intended behavior.
                 
                 console.log("Sending Notification API Request...");
                 
-                // Commenting out the actual fetch to prevent console errors in the demo preview 
-                // since the host 'app.staffbase.com' is not accessible from here.
-                // In production, uncomment the block below:
-                
-                /*
+                // UNCOMMENTED API CALL
                 await fetch('https://app.staffbase.com/api/branch/notifications', {
                     method: 'POST',
                     headers: {
@@ -484,10 +478,9 @@
                     },
                     body: JSON.stringify(payload)
                 });
-                */
+                
 
-                // Simulating network delay
-                await new Promise(resolve => setTimeout(resolve, 800));
+                // await new Promise(resolve => setTimeout(resolve, 800)); // Removed artificial delay
 
                 showToast("Your shift change request has been sent to your manager. An update will be provided soon.");
 

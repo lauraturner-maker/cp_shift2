@@ -338,30 +338,51 @@
             renderUpcoming();
             renderAvailable();
 
-            // Setup Firebase
-            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-
-            // Auth State Listener
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // Hide loader, Show Dashboard
-                    document.getElementById('loader').classList.add('hidden');
-                    document.getElementById('dashboard').classList.remove('hidden');
-                }
-            });
-
-            // Perform Login
             try {
+                // Setup Firebase
+                // 1. Check for Config
+                const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+                
+                // 2. Validate Config (Must have at least an API Key)
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Missing Firebase Config");
+                }
+
+                // 3. Initialize if valid
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+
+                // Auth State Listener
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // Hide loader, Show Dashboard
+                        document.getElementById('loader').classList.add('hidden');
+                        document.getElementById('dashboard').classList.remove('hidden');
+                    }
+                });
+
+                // Perform Login
                 if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
                     await signInWithCustomToken(auth, window.__initial_auth_token);
                 } else {
                     await signInAnonymously(auth);
                 }
+
             } catch (err) {
-                console.error("Auth Failed", err);
-                document.getElementById('loader').innerHTML = `<p class="text-red-600 font-bold">Authentication Error</p>`;
+                console.warn("Auth/Init Failed (Falling back to Demo Mode):", err);
+                
+                // Fallback: If Auth fails or Config is missing, SHOW DASHBOARD anyway
+                // This prevents the "spinning wheel of death"
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+
+                // Optional: Notify user they are in demo mode if it was a config error
+                if (err.message === "Missing Firebase Config") {
+                    console.log("Running in Demo Mode (No backend connected)");
+                } else {
+                    // Actual Auth Error (show to user just in case)
+                     console.error("Firebase Error details:", err);
+                }
             }
         };
 

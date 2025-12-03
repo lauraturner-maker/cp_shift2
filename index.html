@@ -181,7 +181,7 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-100">
                 <!-- List Item 1 -->
-                <div class="p-4 flex gap-4">
+                <div onclick="openSwapConfirm('Grill', 'Wed, Oct 23')" class="p-4 flex gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex flex-col items-center justify-center w-14 h-14 bg-[#F4EBE0] rounded-lg text-[#451300]">
                         <span class="text-xs font-bold uppercase">Wed</span>
                         <span class="text-xl font-bold font-header">23</span>
@@ -201,7 +201,7 @@
                 </div>
 
                 <!-- List Item 2 -->
-                <div class="p-4 flex gap-4">
+                <div onclick="openSwapConfirm('Line Server', 'Fri, Oct 25')" class="p-4 flex gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex flex-col items-center justify-center w-14 h-14 bg-[#F4EBE0] rounded-lg text-[#451300]">
                         <span class="text-xs font-bold uppercase">Fri</span>
                         <span class="text-xl font-bold font-header">25</span>
@@ -283,6 +283,27 @@
         </div>
     </div>
 
+    <!-- Swap Confirmation Modal (New) -->
+    <div id="swapConfirmModal" class="fixed inset-0 z-[55] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSwapConfirm()"></div>
+        
+        <!-- Modal Content -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white w-[90%] max-w-sm rounded-2xl p-6 shadow-2xl transition-all">
+            <h3 class="text-xl font-header font-bold text-[#451300] mb-2">Request Swap?</h3>
+            <p class="text-gray-600 mb-6 text-sm">Do you want to request a swap for the <span id="swapRole" class="font-bold text-[#AD2021]"></span> shift on <span id="swapDate" class="font-bold text-[#AD2021]"></span>?</p>
+            
+            <div class="flex gap-3">
+                <button onclick="closeSwapConfirm()" class="flex-1 py-3 rounded-lg border-2 border-gray-200 font-bold text-gray-500 hover:bg-gray-50 transition-colors text-sm">
+                    CANCEL
+                </button>
+                <button id="confirmSwapBtn" onclick="processSwapRequest()" class="flex-1 py-3 rounded-lg bg-[#AD2021] text-white font-bold hover:bg-[#8a1919] transition-colors text-sm shadow-md">
+                    CONFIRM
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast (Hidden by default) -->
     <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm bg-[#451300] text-white px-4 py-3 rounded-lg shadow-xl z-[60] flex items-center gap-3 transition-all duration-300 -translate-y-[150%] opacity-0">
         <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -350,6 +371,71 @@
                 btn.innerText = originalText;
                 btn.disabled = false;
             }, 1000);
+        }
+
+        // Logic for the new Upcoming Schedule Swap Modal
+        function openSwapConfirm(role, date) {
+            document.getElementById('swapRole').textContent = role;
+            document.getElementById('swapDate').textContent = date;
+            document.getElementById('swapConfirmModal').classList.remove('hidden');
+        }
+
+        function closeSwapConfirm() {
+            document.getElementById('swapConfirmModal').classList.add('hidden');
+        }
+
+        async function processSwapRequest() {
+            const btn = document.getElementById('confirmSwapBtn');
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            btn.disabled = true;
+
+            // Reusing the same payload logic
+            const payload = {
+                "accessorIds": ["6894b616a155797a6ce78bb2"],
+                "channels": ["notificationCenter", "push"],
+                "content": {
+                    "en_US": { "text": "Shift Swap Initiated" },
+                    "de_DE": { "text": "New Learning Module available" }
+                },
+                "icon": {
+                    "en_US": { "type": "font", "char": "n" },
+                    "de_DE": { "type": "font", "char": "n" }
+                },
+                "image": {
+                    "en_US": { "type": "image", "href": "https://cdn-icons-png.flaticon.com/512/8677/8677730.png", "width": 600, "height": 400 },
+                    "de_DE": { "type": "image", "href": "https://cdn-icons-png.flaticon.com/512/8677/8677730.png", "width": 600, "height": 400 }
+                },
+                "link": "https://knowledgepass.kronos.com/auth/saml/login.php"
+            };
+
+            try {
+                console.log("Sending Notification API Request via Modal...");
+                // Note: Fetch call commented out for demo preview
+                /*
+                await fetch('https://app.staffbase.com/api/branch/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Basic Njg5NGMzNzkyYjUxYTk3MWRhYzVhOGU4OmNNRTV6VmxwVVZsKkpQZzA2W35dZVE2Q15PdWFIME9QdllGaTBEM3sxXStfNykuc1J0WEk1fUs3Vl5JJGEkbSQ=',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                */
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                closeSwapConfirm();
+                showToast("Your shift change request has been sent to your manager. An update will be provided soon.");
+
+            } catch (error) {
+                console.error("API Error (Expected in demo):", error);
+                closeSwapConfirm();
+                showToast("Your shift change request has been sent to your manager. An update will be provided soon.");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
         }
 
         // Swap Shift Logic (The main requirement)
